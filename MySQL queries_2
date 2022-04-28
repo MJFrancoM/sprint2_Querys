@@ -1,0 +1,27 @@
+select apellido1, apellido2, nombre from persona where tipo='alumno' order by apellido1 asc, apellido2 asc, nombre asc;
+select nombre, apellido1, apellido2 from persona where tipo= 'alumno' and telefono is null;
+select * from persona where tipo= 'alumno' and fecha_nacimiento like '%1999%';
+select * from persona where tipo= 'profesor' and telefono is null and nif like '%K';
+select * from asignatura where cuatrimestre=1 and curso= 3 and id_grado=7;
+select p.apellido1, p.apellido2, p.nombre, d.nombre as nomDepartamento from persona p, profesor pf, departamento d where p.id=pf.id_profesor and pf.id_departamento=d.id and p.tipo= 'profesor' order by p.apellido1 asc, p.apellido2 asc, p.nombre asc;
+select a.nombre as nomAsignatura, ce.anyo_inicio as inicio, ce.anyo_fin as fin from persona p, asignatura a, alumno_se_matricula_asignatura am, curso_escolar ce where am.id_asignatura=a.id and p.id=am.id_alumno and a.curso=ce.id and p.nif='26902806M';
+select d.nombre as nomDep from departamento d, profesor pf, asignatura ag, grado g where d.id=pf.id_departamento and pf.id_profesor=ag.id_profesor and ag.id_grado=g.id and ag.id_grado=4;
+select * from persona p, alumno_se_matricula_asignatura am where am.id_alumno=p.id and am.id_curso_escolar=5 group by am.id_alumno;
+-- Consultas  Left and Right Join
+select d.nombre as nomDepartamento, p.apellido1, p.apellido2, p.nombre from profesor pf left join persona p on p.id=pf.id_profesor left join departamento d on d.id=pf.id_departamento where pf.id_departamento is not null or pf.id_departamento is null order by d.nombre asc, p.apellido1 asc, p.apellido2 asc, p.nombre asc;
+select p.apellido1, p.apellido2, p.nombre from profesor pf left join persona p on p.id=pf.id_profesor where pf.id_departamento is null;
+select d.nombre as nomDepartamento from departamento d left join profesor pf on d.id=pf.id_departamento where pf.id_departamento is null;
+select p.apellido1, p.apellido2, p.nombre from asignatura ag right join persona p on ag.id_profesor=p.id where p.tipo= 'profesor' and ag.id_profesor is null; 
+select ag.nombre as nomAsignatura from asignatura ag left join persona p on ag.id_profesor=p.id where ag.id_profesor is null;
+-- Consultas Resumen
+select count(*) from persona where tipo='alumno';
+select count(*) from persona where tipo='alumno' and fecha_nacimiento like '%1999%';
+select d.nombre as nomDepartamento, count(*) as cantidad from profesor pf left join departamento d on pf.id_departamento=d.id where pf.id_departamento is not null group by d.nombre order by cantidad desc;
+select d.nombre as nomDepartamento, count(id_departamento) as cantidad from profesor pf right join departamento d on pf.id_departamento=d.id where pf.id_departamento is not null or pf.id_departamento is null group by d.nombre;
+select g.nombre as nomGrado, count(id_grado) as cantidad from asignatura ag right join grado g on ag.id_grado=g.id group by g.nombre order by cantidad desc;
+select g.nombre as nomGrado, count(id_grado) as cantidad from asignatura ag right join grado g on ag.id_grado=g.id group by g.nombre having count(id_grado)>40 order by cantidad desc;
+select g.nombre as nomGrado, ag.tipo as asignatura, sum(creditos) as creditos from asignatura ag left join grado g on ag.id_grado=g.id group by g.nombre;
+select ce.anyo_inicio as inicio, count(id_alumno) as numAlumnos from alumno_se_matricula_asignatura am left join curso_escolar ce on am.id_curso_escolar=ce.id group by ce.anyo_inicio;
+select p.id, p.nombre as nomProfesor, p.apellido1, p.apellido2, count(id_profesor) as numAsignaturas from persona p left join asignatura ag on p.id=ag.id_profesor where p.tipo='profesor' and (ag.id_profesor is not null or ag.id_profesor is null) group by p.nombre order by numAsignaturas desc;
+select * from persona where fecha_nacimiento=(select max(fecha_nacimiento) from persona where tipo='alumno');
+select p.apellido1, p.apellido2, p.nombre from profesor pf left join persona p on pf.id_profesor=p.id left join departamento d on pf.id_departamento=d.id left join asignatura ag on pf.id_profesor=ag.id_profesor where pf.id_departamento is not null and p.tipo= 'profesor' and ag.id_profesor is null;
